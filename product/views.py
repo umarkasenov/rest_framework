@@ -11,27 +11,17 @@ class ProductsWithReviews(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-
-        # Получение и сериализация отзывов для каждого товара
         products_data = []
         for product in queryset:
             reviews = Review.objects.filter(product=product)
             reviews_serializer = ReviewSerializer(reviews, many=True)
-
-            # Вычисление среднего рейтинга отзывов для текущего товара
             average_rating = reviews.aggregate(Avg('stars'))['stars__avg'] if reviews.exists() else None
-
-            # Сериализация товара
             product_serializer = self.serializer_class(product)
-
-            # Добавление данных о товаре, его отзывах и среднем рейтинге в список
             products_data.append({
                 'product': product_serializer.data,
                 'reviews': reviews_serializer.data,
                 'average_rating': average_rating
             })
-
-        # Возвращаем ответ с данными о каждом товаре, его отзывах и среднем рейтинге
         return Response(products_data)
 
 
