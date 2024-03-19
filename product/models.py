@@ -18,8 +18,14 @@ class Product(models.Model):
         return self.title
 
 
+STARS = (
+    (star, star * "*") for star in range(1, 6)
+)
+
+
 class Review(models.Model):
     text = models.TextField()
+    stars = models.IntegerField(choices=STARS, null=True)
     product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
 
     def __str__(self):
