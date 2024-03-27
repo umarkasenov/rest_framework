@@ -1,5 +1,6 @@
 from django.urls import path
-from product.views import CategoryList, CategoryDetail, ProductList, ProductDetail, ReviewList, ReviewDetail, ProductsWithReviews
+from product.views import (CategoryList, CategoryDetail, ProductList, ProductDetail, ReviewList, ReviewDetail,
+                           ProductsWithReviews)
 from django.contrib import admin
 
 urlpatterns = [

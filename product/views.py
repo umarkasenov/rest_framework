@@ -2,7 +2,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from .models import Category, Product, Review
-from .serializers import CategorySerializer, ProductSerializer, ReviewSerializer
+from .serializers import (CategorySerializer, ProductSerializer, ReviewSerializer, CategoryValidateSerializer,
+                          ProductValidateSerializer, ReviewValidateSerializer)
 from django.db import models
 
 
@@ -10,14 +11,15 @@ from django.db import models
 def CategoryList(request):
     if request.method == 'GET':
         categories = Category.objects.annotate(products_count=models.Count('products'))
-        serializer = CategorySerializer(categories, many=True)
-        return Response(serializer.data)
+        data = CategorySerializer(categories, many=True).data
+        return Response(data=data)
     elif request.method == 'POST':
-        serializer = CategorySerializer(data=request.data)
+        serializer = CategoryValidateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -26,7 +28,6 @@ def CategoryDetail(request, id):
         category = Category.objects.get(id=id)
     except Category.DoesNotExist:
         return Response(data={"message": "Category does not exist"}, status=status.HTTP_404_NOT_FOUND)
-
     if request.method == 'GET':
         serializer = CategorySerializer(category)
         return Response(serializer.data)
@@ -48,7 +49,7 @@ def ProductList(request):
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
-        serializer = ProductSerializer(data=request.data)
+        serializer = ProductValidateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -83,7 +84,7 @@ def ReviewList(request):
         serializer = ReviewSerializer(reviews, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
-        serializer = ReviewSerializer(data=request.data)
+        serializer = ReviewValidateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
