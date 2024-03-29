@@ -10,6 +10,7 @@ from django.db import models
 @api_view(['GET', 'POST'])
 def CategoryList(request):
     if request.method == 'GET':
+        print(request.user)
         categories = Category.objects.annotate(products_count=models.Count('products'))
         data = CategorySerializer(categories, many=True).data
         return Response(data=data)
