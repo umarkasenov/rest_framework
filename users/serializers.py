@@ -6,12 +6,19 @@ class UserCreateSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
 
-    def validate_username(self, username):
-        try:
-            User.objects.get(username=username)
+    def validate(self, attrs):
+        username = attrs.get('username')
+        user_exists = User.objects.filter(username=username).exists()
+        if user_exists:
             raise serializers.ValidationError("User already exists")
-        except User.DoesNotExist:
-            return username
+        return attrs
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password']
+        )
+        return user
 
 
 class UserLoginSerializer(serializers.Serializer):
